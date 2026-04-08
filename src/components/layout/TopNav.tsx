@@ -7,9 +7,23 @@ interface TopNavProps {
   subtitle?: string;
   tabs?: { label: string; active?: boolean }[];
   filters?: { label: string; active?: boolean }[];
+  // Interactive props — when provided, take precedence over static active flags
+  activeTab?: string;
+  onTabChange?: (label: string) => void;
+  activeFilters?: string[];
+  onFilterToggle?: (label: string) => void;
 }
 
-export default function TopNav({ title, subtitle, tabs, filters }: TopNavProps) {
+export default function TopNav({
+  title,
+  subtitle,
+  tabs,
+  filters,
+  activeTab,
+  onTabChange,
+  activeFilters,
+  onFilterToggle,
+}: TopNavProps) {
   return (
     <header className="sticky top-0 z-40 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
       <div className="flex items-center justify-between px-6 py-4">
@@ -42,32 +56,46 @@ export default function TopNav({ title, subtitle, tabs, filters }: TopNavProps) 
       {tabs && tabs.length > 0 && (
         <div className="px-6 pb-3 flex gap-1">
           <div className="tab-nav">
-            {tabs.map((tab) => (
-              <button
-                key={tab.label}
-                className={`tab-item ${tab.active ? "active" : ""}`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const isActive =
+                activeTab !== undefined
+                  ? activeTab === tab.label
+                  : tab.active;
+              return (
+                <button
+                  key={tab.label}
+                  className={`tab-item ${isActive ? "active" : ""}`}
+                  onClick={() => onTabChange?.(tab.label)}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
       {filters && filters.length > 0 && (
         <div className="px-6 pb-3 flex gap-2 flex-wrap">
-          {filters.map((filter) => (
-            <button
-              key={filter.label}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                filter.active
-                  ? "bg-[var(--accent-green)] text-black border-[var(--accent-green)]"
-                  : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--text-muted)]"
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+          {filters.map((filter) => {
+            const isActive =
+              activeFilters !== undefined
+                ? activeFilters.includes(filter.label)
+                : filter.active;
+            return (
+              <button
+                key={filter.label}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  isActive
+                    ? "bg-[var(--accent-green)] text-black border-[var(--accent-green)]"
+                    : "border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--text-muted)]"
+                }`}
+                onClick={() => onFilterToggle?.(filter.label)}
+              >
+                {filter.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </header>

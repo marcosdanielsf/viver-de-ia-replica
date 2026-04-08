@@ -1,25 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import TopNav from "@/components/layout/TopNav";
 
-const tabs = [
-  { label: "Funil de Vendas", active: true },
-  { label: "Mix" },
-  { label: "MRR" },
-  { label: "Data Detalhamento" },
-  { label: "Forecast" },
-  { label: "Follow-Up" },
-  { label: "YoY Comparação" },
-  { label: "Closers" },
+const tabLabels = [
+  "Funil de Vendas",
+  "Mix",
+  "MRR",
+  "Data Detalhamento",
+  "Forecast",
+  "Follow-Up",
+  "YoY Comparação",
+  "Closers",
 ];
 
-const filters = [
-  { label: "Este mês", active: true },
-  { label: "Último mês" },
-  { label: "Trimestre" },
-  { label: "Semestre" },
-  { label: "Ano" },
-];
+const filterLabels = ["Este mês", "Último mês", "Trimestre", "Semestre", "Ano"];
 
 interface Member {
   initials: string;
@@ -222,9 +217,26 @@ function TeamCard({ team }: { team: Team }) {
 }
 
 export default function TimesPage() {
+  const [activeTab, setActiveTab] = useState("Funil de Vendas");
+  const [activeFilters, setActiveFilters] = useState<string[]>(["Este mês"]);
+
+  const handleFilterToggle = (label: string) => {
+    setActiveFilters((prev) =>
+      prev.includes(label) ? prev.filter((f) => f !== label) : [...prev, label]
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <TopNav title="Vendas" tabs={tabs} filters={filters} />
+      <TopNav
+        title="Vendas"
+        tabs={tabLabels.map((label) => ({ label }))}
+        filters={filterLabels.map((label) => ({ label }))}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        activeFilters={activeFilters}
+        onFilterToggle={handleFilterToggle}
+      />
 
       <div className="p-6 space-y-6">
         {/* Teams Section */}

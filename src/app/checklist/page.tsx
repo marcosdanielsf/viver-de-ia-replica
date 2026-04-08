@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Circle, ChevronRight } from "lucide-react";
+import { Check, Circle, ChevronRight, ChevronLeft } from "lucide-react";
 import TopNav from "@/components/layout/TopNav";
 
 const steps = [
@@ -85,22 +85,34 @@ function StepIndicator() {
   );
 }
 
-function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: number) => void }) {
+const statusOrder: TaskStatus[] = ["todo", "doing", "done"];
+
+function TaskCard({
+  task,
+  onMove,
+}: {
+  task: Task;
+  onMove: (id: number, direction: "forward" | "back") => void;
+}) {
   const isDone = task.status === "done";
   const isDoing = task.status === "doing";
+  const isTodo = task.status === "todo";
+  const currentIndex = statusOrder.indexOf(task.status);
+  const canMoveForward = currentIndex < statusOrder.length - 1;
+  const canMoveBack = currentIndex > 0;
 
   return (
     <div
-      className={`p-3 rounded-lg bg-[var(--bg-secondary)] border transition-colors cursor-pointer hover:bg-[var(--bg-card-hover)] ${
+      className={`p-3 rounded-lg bg-[var(--bg-secondary)] border transition-all duration-300 ${
         isDoing
           ? "border-l-2 border-l-[var(--accent-orange)] border-[var(--border-color)]"
           : isDone
           ? "border-l-2 border-l-[var(--accent-green)] border-[var(--border-color)]"
           : "border-[var(--border-color)]"
       }`}
-      onClick={() => onToggle(task.id)}
     >
       <div className="flex items-start gap-2.5">
+        {/* Status indicator */}
         <div className="mt-0.5 flex-shrink-0">
           {isDone ? (
             <div className="w-5 h-5 rounded-full bg-[var(--accent-green)] flex items-center justify-center">
@@ -116,6 +128,8 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: number) => vo
             </div>
           )}
         </div>
+
+        {/* Text */}
         <div className="flex-1 min-w-0">
           <p
             className={`text-sm font-medium leading-snug ${
@@ -129,6 +143,38 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: number) => vo
           </p>
         </div>
       </div>
+
+      {/* Move buttons */}
+      <div className="flex items-center justify-end gap-1 mt-2.5 pt-2 border-t border-[var(--border-color)]">
+        <button
+          disabled={!canMoveBack}
+          onClick={() => onMove(task.id, "back")}
+          className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+            canMoveBack
+              ? "text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] cursor-pointer"
+              : "text-[var(--text-muted)] opacity-30 cursor-not-allowed"
+          }`}
+          title="Mover para coluna anterior"
+        >
+          <ChevronLeft size={12} />
+          Voltar
+        </button>
+        <button
+          disabled={!canMoveForward}
+          onClick={() => onMove(task.id, "forward")}
+          className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+            canMoveForward
+              ? isDone
+                ? "text-[var(--accent-green)] bg-[var(--accent-green-dim)] hover:opacity-80 cursor-pointer"
+                : "text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] hover:text-[var(--text-primary)] cursor-pointer"
+              : "text-[var(--text-muted)] opacity-30 cursor-not-allowed"
+          }`}
+          title="Mover para próxima coluna"
+        >
+          {isTodo ? "Iniciar" : isDoing ? "Concluir" : "Avançar"}
+          <ChevronRight size={12} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -136,12 +182,16 @@ function TaskCard({ task, onToggle }: { task: Task; onToggle: (id: number) => vo
 export default function ChecklistPage() {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
-  const toggleTask = (id: number) => {
+  const moveTask = (id: number, direction: "forward" | "back") => {
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id !== id) return t;
-        const next: Record<TaskStatus, TaskStatus> = { todo: "doing", doing: "done", done: "todo" };
-        return { ...t, status: next[t.status] };
+        const currentIndex = statusOrder.indexOf(t.status);
+        const nextIndex =
+          direction === "forward"
+            ? Math.min(currentIndex + 1, statusOrder.length - 1)
+            : Math.max(currentIndex - 1, 0);
+        return { ...t, status: statusOrder[nextIndex] };
       })
     );
   };
@@ -212,7 +262,7 @@ export default function ChecklistPage() {
                     </div>
                   ) : (
                     colTasks.map((task) => (
-                      <TaskCard key={task.id} task={task} onToggle={toggleTask} />
+                      <TaskCard key={task.id} task={task} onMove={moveTask} />
                     ))
                   )}
                 </div>

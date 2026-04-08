@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   PieChart,
   Pie,
@@ -132,13 +133,22 @@ function DonutCenterLabel() {
 // --- Page ---
 
 export default function VendasPage() {
+  const [activeTab, setActiveTab] = useState("Funil de Vendas");
+  const [activeFilters, setActiveFilters] = useState<string[]>(["Período"]);
+
+  const handleFilterToggle = (label: string) => {
+    setActiveFilters((prev) =>
+      prev.includes(label) ? prev.filter((f) => f !== label) : [...prev, label]
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <TopNav
         title="Vendas"
         subtitle="Acompanhe o desempenho comercial"
         tabs={[
-          { label: "Funil de Vendas", active: true },
+          { label: "Funil de Vendas" },
           { label: "Mix" },
           { label: "MRR" },
           { label: "Data Detalhamento" },
@@ -148,12 +158,16 @@ export default function VendasPage() {
           { label: "Closers" },
         ]}
         filters={[
-          { label: "Período", active: true },
+          { label: "Período" },
           { label: "Produto" },
           { label: "Time Leo" },
           { label: "Time Rafa" },
           { label: "Time Gabriel" },
         ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        activeFilters={activeFilters}
+        onFilterToggle={handleFilterToggle}
       />
 
       <div className="p-6 space-y-6">

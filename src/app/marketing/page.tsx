@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import TopNav from "@/components/layout/TopNav";
 import KpiCard from "@/components/ui/KpiCard";
 import {
@@ -145,13 +146,22 @@ function CustomTooltip({ active, payload, label }: {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MarketingPage() {
+  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeFilters, setActiveFilters] = useState<string[]>(["Período", "Mensal"]);
+
+  const handleFilterToggle = (label: string) => {
+    setActiveFilters((prev) =>
+      prev.includes(label) ? prev.filter((f) => f !== label) : [...prev, label]
+    );
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--bg-primary)]">
       <TopNav
         title="Marketing"
         subtitle="Acompanhe a performance de marketing"
         tabs={[
-          { label: "Dashboard", active: true },
+          { label: "Dashboard" },
           { label: "Orçamento" },
           { label: "Mix" },
           { label: "Conteúdo" },
@@ -161,8 +171,8 @@ export default function MarketingPage() {
           { label: "Dados" },
         ]}
         filters={[
-          { label: "Período", active: true },
-          { label: "Mensal", active: true },
+          { label: "Período" },
+          { label: "Mensal" },
           { label: "Semanal" },
           { label: "Acumulado ESS" },
           { label: "Facebook/Ads" },
@@ -170,6 +180,10 @@ export default function MarketingPage() {
           { label: "TikTok/Anúncios" },
           { label: "E-Commerce" },
         ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        activeFilters={activeFilters}
+        onFilterToggle={handleFilterToggle}
       />
 
       <div className="p-6 space-y-6">

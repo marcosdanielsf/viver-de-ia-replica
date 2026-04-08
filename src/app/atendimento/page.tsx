@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import TopNav from "@/components/layout/TopNav";
 import {
   Users,
@@ -149,6 +150,8 @@ function ServiceCardItem({ card }: { card: ServiceCard }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AtendimentoPage() {
+  const [activeTab, setActiveTab] = useState("Atendimento");
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--bg-primary)]">
       <TopNav
@@ -156,10 +159,12 @@ export default function AtendimentoPage() {
         tabs={[
           { label: "Vendas" },
           { label: "Marketing" },
-          { label: "Atendimento", active: true },
+          { label: "Atendimento" },
           { label: "Financeiro" },
           { label: "Onboarding" },
         ]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       <div className="p-6 space-y-8">
